@@ -1,0 +1,897 @@
+name: multi pararel 🔥🚀
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # Job 1: Setup dan scan batch folders
+  setup-and-scan:
+    runs-on: ubuntu-latest
+    outputs:
+      batch-1-exists: ${{ steps.check-batches.outputs.batch-1-exists }}
+      batch-2-exists: ${{ steps.check-batches.outputs.batch-2-exists }}
+      batch-3-exists: ${{ steps.check-batches.outputs.batch-3-exists }}
+      batch-4-exists: ${{ steps.check-batches.outputs.batch-4-exists }}
+      batch-5-exists: ${{ steps.check-batches.outputs.batch-5-exists }}
+      batch-6-exists: ${{ steps.check-batches.outputs.batch-6-exists }}
+      batch-7-exists: ${{ steps.check-batches.outputs.batch-7-exists }}
+      batch-8-exists: ${{ steps.check-batches.outputs.batch-8-exists }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell from GitHub
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Send start notification
+        run: |
+          python3 py/telegram_notify.py "🚀 MEMULAI TERJEMAHAN" "Scanning batch folders di tl/..."
+
+      - name: Check batch folders and count files
+        id: check-batches
+        run: |
+          echo "🔍 Checking batch folders in tl/..."
+          
+          total_files=0
+          active_batches=0
+          
+          for i in {1..8}; do
+            batch_dir="tl/batch_$i"
+            if [ -d "$batch_dir" ]; then
+              file_count=$(ls "$batch_dir"/*.rpy 2>/dev/null | wc -l || echo 0)
+              if [ $file_count -gt 0 ]; then
+                echo "✅ batch_$i: $file_count files"
+                echo "batch-$i-exists=true" >> $GITHUB_OUTPUT
+                total_files=$((total_files + file_count))
+                active_batches=$((active_batches + 1))
+              else
+                echo "⚪ batch_$i: empty"
+                echo "batch-$i-exists=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "⚪ batch_$i: not found"
+              echo "batch-$i-exists=false" >> $GITHUB_OUTPUT
+            fi
+          done
+          
+          echo "📊 Summary:"
+          echo "   Total files: $total_files"
+          echo "   Active batches: $active_batches"
+          
+          if [ $total_files -eq 0 ]; then
+            echo "❌ No .rpy files found in any batch folder!"
+            python3 py/telegram_notify.py "❌ SETUP GAGAL" "Tidak ada file .rpy yang ditemukan di folder batch manapun!"
+            exit 1
+          fi
+          
+          # Send batch summary
+          python3 py/telegram_notify.py "📊 BATCH SCAN RESULT" "🎯 Active batches: $active_batches/8
+          📁 Total files: $total_files
+          🚀 Starting parallel translation..."
+
+      - name: Reset progress files
+        run: |
+          echo "" > translation_progress.txt
+
+      # Upload Python scripts untuk translation jobs
+      - name: Upload Python scripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+  # Jobs 2-9: Translate batch_1 sampai batch_8 (parallel)
+  translate-batch-1:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-1-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 1 files
+        run: |
+          file_count=$(ls tl/batch_1/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 1: $file_count files"
+          
+          # Start translation process
+          python3 py/translate.py tl/batch_1 &
+          PID=$!
+          
+          # Progress monitoring
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 1" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 1 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 1" || true
+            
+            # Mark as successful
+            mkdir -p id
+            echo "success" > id/batch1_status.txt
+          else
+            echo "❌ BATCH 1 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch1_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 1 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-1
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  translate-batch-2:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-2-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 2 files
+        run: |
+          file_count=$(ls tl/batch_2/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 2: $file_count files"
+          
+          python3 py/translate.py tl/batch_2 &
+          PID=$!
+          
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 2" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 2 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 2" || true
+            mkdir -p id
+            echo "success" > id/batch2_status.txt
+          else
+            echo "❌ BATCH 2 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch2_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 2 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-2
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  translate-batch-3:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-3-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 3 files
+        run: |
+          file_count=$(ls tl/batch_3/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 3: $file_count files"
+          
+          python3 py/translate.py tl/batch_3 &
+          PID=$!
+          
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 3" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 3 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 3" || true
+            mkdir -p id
+            echo "success" > id/batch3_status.txt
+          else
+            echo "❌ BATCH 3 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch3_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 3 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-3
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  translate-batch-4:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-4-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 4 files
+        run: |
+          file_count=$(ls tl/batch_4/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 4: $file_count files"
+          
+          python3 py/translate.py tl/batch_4 &
+          PID=$!
+          
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 4" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 4 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 4" || true
+            mkdir -p id
+            echo "success" > id/batch4_status.txt
+          else
+            echo "❌ BATCH 4 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch4_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 4 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-4
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  translate-batch-5:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-5-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 5 files
+        run: |
+          file_count=$(ls tl/batch_5/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 5: $file_count files"
+          
+          python3 py/translate.py tl/batch_5 &
+          PID=$!
+          
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 5" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 5 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 5" || true
+            mkdir -p id
+            echo "success" > id/batch5_status.txt
+          else
+            echo "❌ BATCH 5 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch5_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 5 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-5
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  translate-batch-6:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-6-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 6 files
+        run: |
+          file_count=$(ls tl/batch_6/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 6: $file_count files"
+          
+          python3 py/translate.py tl/batch_6 &
+          PID=$!
+          
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 6" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 6 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 6" || true
+            mkdir -p id
+            echo "success" > id/batch6_status.txt
+          else
+            echo "❌ BATCH 6 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch6_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 6 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-6
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  translate-batch-7:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-7-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 7 files
+        run: |
+          file_count=$(ls tl/batch_7/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 7: $file_count files"
+          
+          python3 py/translate.py tl/batch_7 &
+          PID=$!
+          
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 7" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 7 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 7" || true
+            mkdir -p id
+            echo "success" > id/batch7_status.txt
+          else
+            echo "❌ BATCH 7 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch7_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 7 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-7
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  translate-batch-8:
+    needs: setup-and-scan
+    runs-on: ubuntu-latest
+    if: needs.setup-and-scan.outputs.batch-8-exists == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      - name: Process BATCH 8 files
+        run: |
+          file_count=$(ls tl/batch_8/*.rpy 2>/dev/null | wc -l || echo 0)
+          echo "🔸 Processing BATCH 8: $file_count files"
+          
+          python3 py/translate.py tl/batch_8 &
+          PID=$!
+          
+          while kill -0 $PID 2>/dev/null; do
+            if [ -f "translation_progress.txt" ]; then
+              python3 py/send_progress_update.py "BATCH 8" || true
+            fi
+            sleep 30
+          done
+          
+          wait $PID
+          translation_exit_code=$?
+          
+          if [ $translation_exit_code -eq 0 ]; then
+            echo "✅ BATCH 8 translation completed successfully"
+            python3 py/send_final_update.py "BATCH 8" || true
+            mkdir -p id
+            echo "success" > id/batch8_status.txt
+          else
+            echo "❌ BATCH 8 translation failed"
+            mkdir -p id
+            echo "failed" > id/batch8_status.txt
+            exit 1
+          fi
+
+      - name: Upload BATCH 8 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-batch-8
+          path: |
+            id/
+            *.rpy
+          if-no-files-found: ignore
+
+  # Final job: Collect dan finalize results
+  finalize:
+    needs: [translate-batch-1, translate-batch-2, translate-batch-3, translate-batch-4, translate-batch-5, translate-batch-6, translate-batch-7, translate-batch-8]
+    runs-on: ubuntu-latest
+    if: always() # Run even if some translation jobs failed or were skipped
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Download Python scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-scripts
+          path: py/
+
+      # Download all batch results
+      - name: Download all batch results
+        run: |
+          echo "🔍 Downloading batch results..."
+          for i in {1..8}; do
+            echo "📥 Downloading batch-$i results..."
+            mkdir -p temp-batch-$i
+            curl -s -H "Authorization: token ${{ github.token }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts" | \
+              jq -r ".artifacts[] | select(.name==\"results-batch-$i\") | .archive_download_url" | head -1 > batch-$i-url.txt || true
+          done
+        continue-on-error: true
+
+      - name: Download batch artifacts
+        run: |
+          for i in {1..8}; do
+            if [ -f "batch-$i-url.txt" ] && [ -s "batch-$i-url.txt" ]; then
+              echo "📥 Downloading batch $i..."
+              # This is a simplified version - in real GitHub Actions, 
+              # you'd use actions/download-artifact@v4 for each batch
+            fi
+          done
+        continue-on-error: true
+
+      # Alternative: Use individual download steps
+      - name: Download BATCH 1 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-1
+          path: temp-batch-1/
+        continue-on-error: true
+
+      - name: Download BATCH 2 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-2
+          path: temp-batch-2/
+        continue-on-error: true
+
+      - name: Download BATCH 3 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-3
+          path: temp-batch-3/
+        continue-on-error: true
+
+      - name: Download BATCH 4 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-4
+          path: temp-batch-4/
+        continue-on-error: true
+
+      - name: Download BATCH 5 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-5
+          path: temp-batch-5/
+        continue-on-error: true
+
+      - name: Download BATCH 6 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-6
+          path: temp-batch-6/
+        continue-on-error: true
+
+      - name: Download BATCH 7 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-7
+          path: temp-batch-7/
+        continue-on-error: true
+
+      - name: Download BATCH 8 results
+        uses: actions/download-artifact@v4
+        with:
+          name: results-batch-8
+          path: temp-batch-8/
+        continue-on-error: true
+
+      - name: Merge results and generate statistics
+        run: |
+          echo "🔍 Merging translation results..."
+          
+          # Create final id directory
+          mkdir -p id
+          
+          # Initialize counters
+          total_translated=0
+          success_batches=0
+          failed_batches=0
+          active_batches=0
+          
+          # Process each batch result
+          for i in {1..8}; do
+            if [ -d "temp-batch-$i" ]; then
+              echo "📁 Processing batch $i results..."
+              active_batches=$((active_batches + 1))
+              
+              # Check status
+              if [ -f "temp-batch-$i/id/batch${i}_status.txt" ]; then
+                status=$(cat "temp-batch-$i/id/batch${i}_status.txt")
+                echo "  Status: $status"
+                
+                if [ "$status" = "success" ]; then
+                  success_batches=$((success_batches + 1))
+                elif [ "$status" = "failed" ]; then
+                  failed_batches=$((failed_batches + 1))
+                fi
+              fi
+              
+              # Copy translated files
+              if [ -d "temp-batch-$i/id" ]; then
+                cp -r temp-batch-$i/id/* id/ 2>/dev/null || true
+              fi
+              
+              # Copy any .rpy files from root
+              cp temp-batch-$i/*.rpy id/ 2>/dev/null || true
+              
+              # Count files
+              batch_count=$(ls temp-batch-$i/*.rpy 2>/dev/null | wc -l || echo 0)
+              total_translated=$((total_translated + batch_count))
+              echo "  Translated files: $batch_count"
+            else
+              echo "⚪ No results found for batch $i"
+            fi
+          done
+          
+          echo "📊 Final counts:"
+          echo "  Active batches: $active_batches"
+          echo "  Successful batches: $success_batches"
+          echo "  Failed batches: $failed_batches" 
+          echo "  Total translated files: $total_translated"
+          
+          # Generate final report
+          final_translated=$(ls id/*.rpy 2>/dev/null | wc -l || echo 0)
+          mapping_count=$(ls id/mapping/*_mapping.txt 2>/dev/null | wc -l || echo 0)
+          log_count=$(ls id/log/*_log.txt 2>/dev/null | wc -l || echo 0)
+          
+          # Create final statistics
+          cat > id/final_statistics.txt << EOF
+          🎉 RENPY TRANSLATION PIPELINE - FINAL REPORT
+          ============================================
+          📅 Completed: $(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          📊 PROCESSING SUMMARY:
+          - Active batches: $active_batches/8
+          - Successful batches: $success_batches
+          - Failed batches: $failed_batches
+          - Files successfully translated: $final_translated
+          - Mapping files created: $mapping_count
+          - Log files generated: $log_count
+          
+          📁 FINAL STRUCTURE:
+          id/
+          ├── *.rpy ($final_translated translated files)
+          ├── mapping/ ($mapping_count mapping files)
+          └── log/ ($log_count log files)
+          
+          🎯 BATCH PROCESSING RESULTS:
+          Manual batch distribution from tl/batch_1 to tl/batch_8
+          Only active (non-empty) batches were processed in parallel.
+          
+          ✅ Translation pipeline completed!
+          EOF
+          
+          # Create documentation
+          cat > id/README.md << 'EOF'
+          # RenPy Translation Results
+          
+          This directory contains the translated RenPy files from the manual batch distribution pipeline.
+          
+          ## Directory Structure
+          
+          ```
+          id/
+          ├── *.rpy                    # Translated RenPy files (MAIN OUTPUT)
+          ├── mapping/                 # Translation mapping files
+          ├── log/                     # Translation log files
+          └── final_statistics.txt     # Complete pipeline report
+          ```
+          
+          ## Processing Method
+          
+          Files were manually distributed into batch folders (tl/batch_1 to tl/batch_8)
+          and processed in parallel. Only non-empty batches were executed.
+          
+          Generated by RenPy Translation Pipeline v3 (Manual Batch Distribution)
+          EOF
+          
+          # Set environment variables
+          if [ $final_translated -gt 0 ]; then
+            echo "has-results=true" >> $GITHUB_ENV
+            echo "translated-count=$final_translated" >> $GITHUB_ENV
+            echo "active-batches=$active_batches" >> $GITHUB_ENV
+            echo "success-batches=$success_batches" >> $GITHUB_ENV
+          else
+            echo "has-results=false" >> $GITHUB_ENV
+          fi
+
+      - name: Send final completion report
+        run: |
+          if [ "$has_results" = "true" ]; then
+            # Success case
+            FINAL_REPORT=$(cat id/final_statistics.txt)
+            python3 py/telegram_notify.py "🎉 TERJEMAHAN SELESAI" "$FINAL_REPORT"
+          else
+            # Failure case
+            python3 py/telegram_notify.py "❌ TERJEMAHAN GAGAL" \
+              "❌ Translation pipeline failed!
+              
+              🔍 Possible causes:
+              - No .rpy files found in any batch folder (tl/batch_1 to tl/batch_8)
+              - All translation batches failed
+              - Network/API issues
+              
+              Check workflow logs for details."
+          fi
+
+      - name: Cleanup and prepare final artifacts
+        if: always()
+        run: |
+          echo "🧹 Preparing final results..."
+          
+          # Clean up temporary directories
+          rm -rf temp-batch-* || true
+          rm -f batch-*-url.txt || true
+          
+          echo "✅ Final cleanup completed"
+
+      # Upload final results as artifact
+      - name: Upload final results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-translation-results
+          path: id/
+          if-no-files-found: ignore
