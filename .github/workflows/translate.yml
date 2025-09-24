@@ -47,7 +47,7 @@ jobs:
           SLEEP_OTHER: ${{ inputs.sleep_other }}
           SLEEP_SHELL: ${{ inputs.sleep_shell }}
         run: |
-          python translate1.py
+          python py/translate1.py
           
       - name: Upload Pattern [1] Artifacts
         uses: actions/upload-artifact@v4
@@ -87,7 +87,7 @@ jobs:
           SLEEP_OTHER: ${{ inputs.sleep_other }}
           SLEEP_SHELL: ${{ inputs.sleep_shell }}
         run: |
-          python translate2.py
+          python py/translate2.py
           
       - name: Upload Pattern [2] Artifacts
         uses: actions/upload-artifact@v4
@@ -127,7 +127,7 @@ jobs:
           SLEEP_OTHER: ${{ inputs.sleep_other }}
           SLEEP_SHELL: ${{ inputs.sleep_shell }}
         run: |
-          python translate3.py
+          python py/translate3.py
           
       - name: Upload Pattern [3] Artifacts
         uses: actions/upload-artifact@v4
@@ -167,7 +167,7 @@ jobs:
           SLEEP_OTHER: ${{ inputs.sleep_other }}
           SLEEP_SHELL: ${{ inputs.sleep_shell }}
         run: |
-          python translate4.py
+          python py/translate4.py
           
       - name: Upload Pattern [4] Artifacts
         uses: actions/upload-artifact@v4
