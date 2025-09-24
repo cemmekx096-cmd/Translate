@@ -98,7 +98,7 @@ class TranslationLogger:
     
     def save_session_log(self):
         """Save complete session log"""
-        log_file = REPO_ROOT / "output_tl" / "logs" / f"{SCRIPT_NAME.replace('.py', '')}_session_{self.session_id}.json"
+        log_file = REPO_ROOT / "output_3" / "logs" / f"{SCRIPT_NAME.replace('.py', '')}_session_{self.session_id}.json"
         
         session_data = {
             'session_id': self.session_id,
@@ -311,7 +311,7 @@ class RenPyTranslatorCore:
 
     def save_mappings(self):
         """Save tag and variable mappings to TXT file"""
-        mapping_file = REPO_ROOT / "output_tl" / "mappings" / f"{self.filename_base}_mapping.txt"
+        mapping_file = REPO_ROOT / "output_3" / "mappings" / f"{self.filename_base}_mapping.txt"
         
         with open(mapping_file, 'w', encoding='utf-8') as f:
             # Write tag mappings
@@ -801,7 +801,7 @@ def process_files(file_list, translate_function, translator):
         
         if result:
             # Save translated file to output_tl/id/
-            output_filename = REPO_ROOT / "output_tl" / "id" / f"{result['filename']}_translated.rpy"
+            output_filename = REPO_ROOT / "output_3" / "id" / f"{result['filename']}_translated.rpy"
             
             with open(output_filename, 'w', encoding='utf-8') as f:
                 f.write(result['content'])
@@ -874,7 +874,7 @@ def main():
             log_message(f"   Batch delays used: {translator.stats['batch_delays']}")
             log_message("📁 Generated files:")
             for result in results:
-                log_message(f"   - Translation: output_tl/id/{result['filename']}_translated.rpy")
+                log_message(f"   - Translation: output_3/id/{result['filename']}_translated.rpy")
                 log_message(f"   - Mappings: {result['mapping_file']}")
                 if 'log_file' in result:
                     log_message(f"   - Log: {result['log_file']}")

@@ -98,7 +98,7 @@ class TranslationLogger:
     
     def save_session_log(self):
         """Save complete session log"""
-        log_file = REPO_ROOT / "output_tl" / "logs" / f"{SCRIPT_NAME.replace('.py', '')}_session_{self.session_id}.json"
+        log_file = REPO_ROOT / "output_1" / "logs" / f"{SCRIPT_NAME.replace('.py', '')}_session_{self.session_id}.json"
         
         session_data = {
             'session_id': self.session_id,
@@ -311,7 +311,7 @@ class RenPyTranslatorCore:
 
     def save_mappings(self):
         """Save tag and variable mappings to TXT file"""
-        mapping_file = REPO_ROOT / "output_tl" / "mappings" / f"{self.filename_base}_mapping.txt"
+        mapping_file = REPO_ROOT / "output_1" / "mappings" / f"{self.filename_base}_mapping.txt"
         
         with open(mapping_file, 'w', encoding='utf-8') as f:
             # Write tag mappings
