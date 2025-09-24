@@ -1,0 +1,55 @@
+name: 👿👿👿🔥
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-translations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install translate-shell and python packages
+        run: |
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          cd ..
+          pip install googletrans==4.0.0rc1 requests
+
+      - name: Run translate1.py
+        run: python3 py/translate1.py
+
+      - name: Run translate2.py
+        run: python3 py/translate2.py
+
+      - name: Run translate3.py
+        run: python3 py/translate3.py
+
+      - name: Run translate4.py
+        run: python3 py/translate4.py
+
+      - name: Prepare combined output folder
+        run: |
+          mkdir -p output_translate
+          cp -r output_1/* output_translate/ || echo "No output_1"
+          cp -r output_2/* output_translate/ || echo "No output_2"
+          cp -r output_3/* output_translate/ || echo "No output_3"
+          cp -r output_4/* output_translate/ || echo "No output_4"
+
+      - name: Zip combined output folder
+        run: |
+          zip -r output_translate.zip output_translate/
+
+      - name: Upload combined output artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: output_translate
+          path: output_translate.zip
