@@ -26,7 +26,7 @@ SCRIPT_NAME = "translate1.py"
 SLEEP_SHELL = 0.3  # For translate-shell
 SLEEP_OTHER = 0.5  # For Google, Bing, Lingva
 # Configurable pattern for scripts.txt
-PATTERN = "[1]"  # Change to [2], [3], [4] for other scripts
+PATTERN = "[4]"  # Change to [2], [3], [4] for other scripts
 
 # ========== NEW: BATCH PROCESSING CONFIG ==========
 BATCH_SIZE = 5      # Process 5 files per batch for Google/Bing
@@ -77,7 +77,7 @@ class TranslationLogger:
         self.start_time = datetime.now()
         
         # Ensure output directories exist
-        output_root = REPO_ROOT / "output_1"
+        output_root = REPO_ROOT / "output_4"
         (output_root / "logs").mkdir(parents=True, exist_ok=True)
         (output_root / "mappings").mkdir(parents=True, exist_ok=True)
         (output_root / "id").mkdir(parents=True, exist_ok=True)

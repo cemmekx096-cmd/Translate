@@ -1,0 +1,64 @@
+# grup 1
+1. x-Episode_19.rpy
+2. x-bareventone.rpy
+3. x-annasofficeevents.rpy
+4. x-barlogicgate.rpy
+5. x-bathroom.rpy
+6. x-bedroom.rpy
+
+# grup 2
+1. x-Episode_13.rpy
+2. x-Episode_17.rpy
+3. x-makecoffee.rpy
+4. x-taxmaneventone.rpy
+5. x-strangerevents.rpy
+
+# grup 3
+1. x-Episode_12.rpy
+2. x-Episode_18.rpy
+3. x-alfredevents.rpy
+4. x-alfredeventtwo.rpy
+5. x-annasofficeevents.rpy
+
+# grup 4
+1. x-Episode_15.rpy
+2. x-Episode_20.rpy
+3. x-episodeone.rpy
+4. x-jeremyhomeeventone.rpy
+5. x-jeremyeventtwo.rpy
+
+# grup 5
+1. x-Episode_16.rpy
+2. x-Episode_14.rpy
+3. x-Episode_10.rpy
+4. x-schmidteventtwo.rpy
+5. x-schmidteventthree.rpy
+
+# grup 6
+1. x-Episode_11.rpy
+2. x-Episode_9.5.rpy
+3. x-Episode_9.rpy
+4. x-annaofficeeventone.rpy
+5. x-annaofficeeventonea.rpy
+6. x-ashleyeventone.rpy
+7. x-dilaneventtwo.rpy
+
+# grup 7
+1. x-dilaneventone.rpy
+2. x-haroldevents.rpy
+3. x-hospitaleventone.rpy
+4. x-jeremyeventone.rpy
+5. x-jeremyeventtwo.rpy
+6. x-jeremyhomeeventone.rpy
+7. x-precinct.rpy
+8. x-carleventone.rpy
+
+# grup 8
+1. x-sergeyeventone.rpy
+2. x-taxmaneventone.rpy
+3. x-timothyeventtwo.rpy
+4. x-johnevents.rpy
+5. x-johneventthree.rpy
+6. x-earleventone.rpy
+7. x-earleventthree.rpy
+8. x-earleventtwo.rpy

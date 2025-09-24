@@ -1,0 +1,356 @@
+name: Multi-Engine Parallel Translation 🚀🔥
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      total-files: ${{ steps.count.outputs.total-files }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install googletrans==4.0.0rc1
+          pip install requests
+          
+          # Install translate-shell
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          
+      - name: Validate task distribution
+        id: count
+        run: |
+          echo "📋 Checking tl/scripts.txt..."
+          
+          if [[ ! -f "tl/scripts.txt" ]]; then
+            echo "❌ tl/scripts.txt not found!"
+            exit 1
+          fi
+          
+          cat tl/scripts.txt
+          
+          total_files=$(grep -o '\.rpy' tl/scripts.txt | wc -l)
+          echo "📊 Total files to translate: $total_files"
+          echo "total-files=$total_files" >> $GITHUB_OUTPUT
+          
+          # Check if all files exist
+          missing_files=""
+          while IFS= read -r line; do
+            if [[ $line =~ ^[0-9]+\.\s+(.+\.rpy)$ ]]; then
+              filename="${BASH_REMATCH[1]}"
+              if [[ ! -f "tl/$filename" ]]; then
+                missing_files="$missing_files$filename "
+              fi
+            fi
+          done < tl/scripts.txt
+          
+          if [[ -n "$missing_files" ]]; then
+            echo "❌ Missing files: $missing_files"
+            exit 1
+          fi
+          
+          echo "✅ All files found in tl/ directory"
+
+  translate-engine-1:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python & Dependencies
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install googletrans==4.0.0rc1
+          pip install requests
+          
+          # Install translate-shell
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          
+      - name: Run Engine Pipeline 1
+        run: |
+          echo "🚀 Starting translate1.py pipeline..."
+          cd py
+          python3 translate1.py
+          
+      - name: Upload Pipeline 1 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-engine-1
+          path: output_tl/
+          if-no-files-found: warn
+
+  translate-engine-2:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python & Dependencies
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install googletrans==4.0.0rc1
+          pip install requests
+          
+          # Install translate-shell
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          
+      - name: Create translate2.py
+        run: |
+          # Copy translate1.py as template for translate2.py
+          cp py/translate1.py py/translate2.py
+          
+          # Replace translate1.py references with translate2.py
+          sed -i 's/translate1\.py/translate2.py/g' py/translate2.py
+          sed -i 's/SCRIPT_NAME = "translate1.py"/SCRIPT_NAME = "translate2.py"/g' py/translate2.py
+          
+      - name: Run Engine Pipeline 2
+        run: |
+          echo "🚀 Starting translate2.py pipeline..."
+          cd py
+          python3 translate2.py
+          
+      - name: Upload Pipeline 2 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-engine-2
+          path: output_tl/
+          if-no-files-found: warn
+
+  translate-engine-3:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python & Dependencies
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install googletrans==4.0.0rc1
+          pip install requests
+          
+          # Install translate-shell
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          
+      - name: Create translate3.py
+        run: |
+          # Copy translate1.py as template for translate3.py
+          cp py/translate1.py py/translate3.py
+          
+          # Replace translate1.py references with translate3.py
+          sed -i 's/translate1\.py/translate3.py/g' py/translate3.py
+          sed -i 's/SCRIPT_NAME = "translate1.py"/SCRIPT_NAME = "translate3.py"/g' py/translate3.py
+          
+      - name: Run Engine Pipeline 3
+        run: |
+          echo "🚀 Starting translate3.py pipeline..."
+          cd py
+          python3 translate3.py
+          
+      - name: Upload Pipeline 3 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-engine-3
+          path: output_tl/
+          if-no-files-found: warn
+
+  translate-engine-4:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python & Dependencies
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install googletrans==4.0.0rc1
+          pip install requests
+          
+          # Install translate-shell
+          git clone https://github.com/soimort/translate-shell
+          cd translate-shell
+          make
+          sudo make install
+          
+      - name: Create translate4.py
+        run: |
+          # Copy translate1.py as template for translate4.py
+          cp py/translate1.py py/translate4.py
+          
+          # Replace translate1.py references with translate4.py
+          sed -i 's/translate1\.py/translate4.py/g' py/translate4.py
+          sed -i 's/SCRIPT_NAME = "translate1.py"/SCRIPT_NAME = "translate4.py"/g' py/translate4.py
+          
+      - name: Run Engine Pipeline 4
+        run: |
+          echo "🚀 Starting translate4.py pipeline..."
+          cd py
+          python3 translate4.py
+          
+      - name: Upload Pipeline 4 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-engine-4
+          path: output_tl/
+          if-no-files-found: warn
+
+  finalize:
+    needs: [translate-engine-1, translate-engine-2, translate-engine-3, translate-engine-4]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: results-engine-*
+          path: temp-results/
+          merge-multiple: false
+          
+      - name: Merge results and generate report
+        run: |
+          echo "🔍 Merging translation results..."
+          
+          # Create final output directory
+          mkdir -p final_output_tl/id
+          mkdir -p final_output_tl/mappings  
+          mkdir -p final_output_tl/logs
+          
+          # Initialize counters
+          total_translated=0
+          total_mappings=0
+          total_logs=0
+          
+          # Process each engine result
+          for engine in {1..4}; do
+            result_dir="temp-results/results-engine-$engine"
+            if [ -d "$result_dir" ]; then
+              echo "📁 Processing engine $engine results..."
+              
+              # Copy translated files
+              if [ -d "$result_dir/id" ]; then
+                cp -r "$result_dir/id/"* final_output_tl/id/ 2>/dev/null || true
+                translated_count=$(ls "$result_dir/id/"*.rpy 2>/dev/null | wc -l || echo 0)
+                total_translated=$((total_translated + translated_count))
+                echo "  Translated files: $translated_count"
+              fi
+              
+              # Copy mapping files
+              if [ -d "$result_dir/mappings" ]; then
+                cp -r "$result_dir/mappings/"* final_output_tl/mappings/ 2>/dev/null || true
+                mapping_count=$(ls "$result_dir/mappings/"*.txt 2>/dev/null | wc -l || echo 0)
+                total_mappings=$((total_mappings + mapping_count))
+                echo "  Mapping files: $mapping_count"
+              fi
+              
+              # Copy log files
+              if [ -d "$result_dir/logs" ]; then
+                cp -r "$result_dir/logs/"* final_output_tl/logs/ 2>/dev/null || true
+                log_count=$(ls "$result_dir/logs/"*.json 2>/dev/null | wc -l || echo 0)
+                total_logs=$((total_logs + log_count))
+                echo "  Log files: $log_count"
+              fi
+            else
+              echo "⚪ No results found for engine $engine"
+            fi
+          done
+          
+          echo "📊 Final counts:"
+          echo "  Total translated files: $total_translated"
+          echo "  Total mapping files: $total_mappings"
+          echo "  Total log files: $total_logs"
+          
+          # Generate final report
+          cat > final_output_tl/TRANSLATION_REPORT.txt << 'EOF'
+          🎉 MULTI-ENGINE TRANSLATION PIPELINE - FINAL REPORT
+          ================================================
+          📅 Completed: $(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          📊 PROCESSING SUMMARY:
+          - Engine pipelines: 4 (parallel execution)
+          - Files successfully translated: $total_translated
+          - Mapping files created: $total_mappings
+          - Log files generated: $total_logs
+          
+          📁 FINAL STRUCTURE:
+          final_output_tl/
+          ├── id/       ($total_translated translated .rpy files)
+          ├── mappings/ ($total_mappings mapping .txt files)
+          └── logs/     ($total_logs session .json files)
+          
+          🔧 ENGINE CONFIGURATION:
+          - Smart blocking cascade per engine
+          - Sleep times: Shell=0.5s, Others=1.0s
+          - Fallback order: Google → Bing → Lingva → Shell
+          
+          🚀 PARALLEL EXECUTION:
+          - 4 simultaneous translation pipelines
+          - Each pipeline processes assigned files independently
+          - Results merged in finalize job
+          
+          📋 FILES PROCESSED:
+          See individual engine logs for detailed statistics
+          EOF
+          
+          # Substitute variables in report
+          sed -i "s/\$total_translated/$total_translated/g" final_output_tl/TRANSLATION_REPORT.txt
+          sed -i "s/\$total_mappings/$total_mappings/g" final_output_tl/TRANSLATION_REPORT.txt
+          sed -i "s/\$total_logs/$total_logs/g" final_output_tl/TRANSLATION_REPORT.txt
+          sed -i "s/\$(date[^)]*)/$date/g" final_output_tl/TRANSLATION_REPORT.txt
+          
+          echo "📄 Final report generated: final_output_tl/TRANSLATION_REPORT.txt"
+          cat final_output_tl/TRANSLATION_REPORT.txt
+          
+      - name: Upload final merged results
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-translation-results
+          path: final_output_tl/
+          retention-days: 30
+          
+      - name: Summary
+        run: |
+          echo "🎉 Multi-engine translation pipeline completed!"
+          echo "📦 Final results available in 'final-translation-results' artifact"
+          echo "🔍 Check the TRANSLATION_REPORT.txt for detailed summary"
