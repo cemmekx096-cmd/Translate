@@ -7,7 +7,7 @@ to_rpyc5/
 Translate/
 
 # Ignore semua file dengan ekstensi tertentu
-*.bak
+*.txt
 *.env
 *.json
 *.bag
