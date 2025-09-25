@@ -65,6 +65,21 @@ style frame:
     padding gui.frame_borders.padding
     background Frame("gui/frame.png", gui.frame_borders, tile=gui.frame_tile)
 
+# Language switching functionality
+init python:
+    def set_language(lang):
+        """Set the language and restart the game to apply changes"""
+        persistent.language = lang
+        renpy.change_language(lang)
+        renpy.save_persistent()
+
+    def get_current_language():
+        """Get current language, default to None (English)"""
+        return persistent.language if hasattr(persistent, 'language') else None
+
+# Initialize language preference
+default persistent.language = None
+
 ################################################################################
 ## Say screen
 ################################################################################
@@ -614,6 +629,12 @@ screen preferences():
                     textbutton _("Transitions") action InvertSelected(Preference("transitions", "toggle"))
                     
                 vbox:
+                    style_prefix "radio"
+                    label _("Language")
+                    textbutton _("English") action [Function(set_language, None), Return()]
+                    textbutton _("Bahasa Indonesia") action [Function(set_language, "id"), Return()]
+                    
+                vbox:
                     style_prefix "check"
                     label _("Other")
                     textbutton _("Disable Text Box"):
@@ -994,6 +1015,11 @@ style confirm_button:
 
 style confirm_button_text:
     properties gui.button_text_properties("confirm_button")
+
+################################################################################
+## Skip indicator screen
+################################################################################
+
 
 ################################################################################
 ## Skip indicator screen
