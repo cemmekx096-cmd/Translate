@@ -4,7 +4,6 @@ de/
 to_rpyn/
 rpy/
 to_rpyc5/
-Translate/
 
 # Ignore semua file dengan ekstensi tertentu
 *.bak
