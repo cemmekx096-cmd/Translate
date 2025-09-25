@@ -17,7 +17,7 @@ jobs:
           
       - name: Install Ren'Py SDK 8.0.0  # <- UBAH VERSI DI SINI
         run: |
-          wget -q https://www.renpy.org/dl/8.0.3/renpy-8.0.3-sdk.tar.bz2  # <- URL v8.0.3
+          wget -q https://www.renpy.org/dl/8.0.0/renpy-8.0.0-sdk.tar.bz2  # <- URL v8.0.3
           tar -xf renpy-8.0.3-sdk.tar.bz2
           echo "Ren'Py SDK versi:"
           ./renpy-8.0.3-sdk/renpy.sh --version  # <- PATH v8.0.3
