@@ -1,5 +1,6 @@
 # Mod System - mod_system.rpy
 # File ini menampilkan tombol "mod" di pojok atas dan menu bahasa
+# Compatible with Ren'Py 8.0.3
 
 # Definisi variabel untuk menyimpan bahasa yang dipilih
 default persistent.selected_language = "english"
@@ -9,9 +10,11 @@ style mod_button:
     background None
     hover_background "#333333"
     padding (10, 5)
-    text_size 20
-    text_color "#ffffff"
-    text_hover_color "#ffff00"
+
+style mod_button_text:
+    size 20
+    color "#ffffff"
+    hover_color "#ffff00"
 
 # Style untuk menu mod
 style mod_menu_frame:
@@ -42,6 +45,7 @@ screen mod_overlay():
     # Tombol mod di pojok kanan atas
     textbutton "mod":
         style "mod_button"
+        text_style "mod_button_text"
         xalign 1.0
         yalign 0.0
         xoffset -10
