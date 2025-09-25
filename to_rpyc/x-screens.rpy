@@ -821,17 +821,10 @@ init -501 screen preferences():
                         style_prefix "check"
                         action ToggleField(persistent, "text_centered", true_value=True, false_value=False)
                 vbox:
-                    style_prefix "check"
+                    style_prefix "radio"
                     label _("Language")
-                    textbutton _("English"):
-                        style_prefix "radio"
-                        action [SetVariable("persistent.language", None), Function(change_game_language, None)]
-                        selected persistent.language is None or persistent.language == "en"
-                    textbutton _("Bahasa Indonesia"):
-                        style_prefix "radio"
-                        action [SetVariable("persistent.language", "id"), Function(change_game_language, "id")]
-                        selected persistent.language == "id"
-
+                    textbutton _("English") action Function(change_game_language, None)
+                    textbutton _("Bahasa Indonesia") action Function(change_game_language, "id")
 
             null height (4 * gui.pref_spacing)
 
