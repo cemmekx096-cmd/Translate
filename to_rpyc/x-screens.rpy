@@ -825,13 +825,12 @@ init -501 screen preferences():
                     label _("Language")
                     textbutton _("English"):
                         style_prefix "radio"
-                        action Function(change_game_language, None)
-                        selected (persistent.language is None or persistent.language == "en")
+                        action [SetVariable("persistent.language", None), Function(change_game_language, None)]
+                        selected persistent.language is None or persistent.language == "en"
                     textbutton _("Bahasa Indonesia"):
-                        style_prefix "radio" 
-                        action Function(change_game_language, "id")
-                        selected (persistent.language == "id")
-
+                        style_prefix "radio"
+                        action [SetVariable("persistent.language", "id"), Function(change_game_language, "id")]
+                        selected persistent.language == "id"
 
 
             null height (4 * gui.pref_spacing)
