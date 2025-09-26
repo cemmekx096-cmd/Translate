@@ -1,0 +1,7 @@
+# Demo File
+Ini adalah file contoh untuk testing.
+Terdapat beberapa teks translate english di sini.
+Dan juga ada translate english lainnya.
+Bahkan translate english bisa ada di tengah kalimat translate english seperti ini.
+File ini memiliki translate english yang akan diubah.
+Akhir dari demo file.
