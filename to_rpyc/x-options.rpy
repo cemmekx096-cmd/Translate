@@ -48,8 +48,8 @@ define config.window_icon = "gui/window_icon.png"
 ## Konfigurasi bahasa untuk Ren'Py 8.0.3
 define config.translate_clean_stores = ["gui"]
 
-## Bahasa yang tersedia
-define gui.language = "english"
+## Bahasa yang tersedia (jangan definisikan gui.language)
+## Ren'Py akan otomatis menggunakan bahasa default (None/English)
 
 init python:
     ## Fungsi untuk mengubah bahasa
